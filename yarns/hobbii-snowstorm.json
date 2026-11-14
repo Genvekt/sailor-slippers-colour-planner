@@ -1,0 +1,43 @@
+{
+  "name": "Hobbii Snowstorm",
+  "url": "https://hobbii.de/products/hp-1001867-snowstorm",
+  "ballWeightGrams": 50,
+  "presets": [
+    {"A":"01","B":"08","C":"08","D":"26"},
+    {"A":"19","B":"17","C":"17","D":"05"},
+    {"A":"31","B":"13","C":"13","D":"05"},
+    {"A":"35","B":"37","C":"37","D":"26"},
+    {"A":"04","B":"20","C":"20","D":"26"}
+  ],
+  "groups": [
+    {"type":"plain","label":"Colours"}
+  ],
+  "colours": [
+    {"number":"01","name":"Ivory","hex":"#efeadb","type":"plain"},
+    {"number":"35","name":"Cream","hex":"#f0d9c8","type":"plain"},
+    {"number":"04","name":"Light Grey","hex":"#c9c4b8","type":"plain"},
+    {"number":"02","name":"Taupe","hex":"#857a70","type":"plain"},
+    {"number":"18","name":"Storm","hex":"#7b8a8c","type":"plain"},
+    {"number":"05","name":"Dark Gray","hex":"#6c6a64","type":"plain"},
+    {"number":"26","name":"Charcoal","hex":"#2e2e30","type":"plain"},
+    {"number":"09","name":"Black","hex":"#1a1a1a","type":"plain"},
+    {"number":"39","name":"Brown","hex":"#3a2620","type":"plain"},
+    {"number":"22","name":"Curry","hex":"#d9a028","type":"plain"},
+    {"number":"23","name":"Amber","hex":"#c4521f","type":"plain"},
+    {"number":"10","name":"Scarlet","hex":"#c8202c","type":"plain"},
+    {"number":"36","name":"Rose","hex":"#e9aab0","type":"plain"},
+    {"number":"37","name":"Bordeaux","hex":"#3e1d1e","type":"plain"},
+    {"number":"31","name":"Pastel Purple","hex":"#c7b0cc","type":"plain"},
+    {"number":"13","name":"Mauve","hex":"#7e6585","type":"plain"},
+    {"number":"28","name":"Blue Sky","hex":"#8cc0e0","type":"plain"},
+    {"number":"30","name":"Dusty Blue","hex":"#6f86a0","type":"plain"},
+    {"number":"29","name":"Grape Hyacinth","hex":"#3d4fc4","type":"plain"},
+    {"number":"08","name":"Navy","hex":"#2f3a5e","type":"plain"},
+    {"number":"16","name":"Midnight Blue","hex":"#232a55","type":"plain"},
+    {"number":"17","name":"Teal Blue","hex":"#3e7a83","type":"plain"},
+    {"number":"19","name":"Sea Foam","hex":"#5aaba3","type":"plain"},
+    {"number":"20","name":"Meadow Green","hex":"#2f6e45","type":"plain"},
+    {"number":"38","name":"Dark Green","hex":"#1f3324","type":"plain"},
+    {"number":"15","name":"Dark Forrest","hex":"#1f3f3c","type":"plain"}
+  ]
+}

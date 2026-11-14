@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sailor Slippers Colour Planner</title>
+<meta name="description" content="Unofficial colour planner for knitting felted striped slippers: preview colours and total up the yarn for every pair.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: pair cards in a 2-column grid (1 on phone) with an "Add a pair" card filling the next cell; combined shopping list below */
+:root{
+  --bg:#f5f6f0; --card:#ffffff; --ink:#1f231c; --muted:#6b7064; --line:#e2e5da;
+  --sage:#cfe0b4; --sage-ink:#3d5a1e; --focus:#4f6f2a; --warn:#a2541a;
+  --display:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --body:"Inter",system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#161814; --card:#1f221c; --ink:#eceee6; --muted:#a2a798; --line:#33372e;
+  --sage:#3a4a28; --sage-ink:#d4e6b8; --focus:#a9cc78; --warn:#f0a868; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#161814; --card:#1f221c; --ink:#eceee6; --muted:#a2a798; --line:#33372e;
+  --sage:#3a4a28; --sage-ink:#d4e6b8; --focus:#a9cc78; --warn:#f0a868; color-scheme:dark}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+header{display:flex;flex-direction:column;gap:8px}
+header h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,5vw,44px);margin:0;letter-spacing:-.01em;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:66ch}
+.note{font-size:13px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;max-width:72ch}
+.note a{color:var(--sage-ink);font-weight:600}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.toolbar label{font-weight:600;color:var(--ink)}
+.toolbar select{font:inherit;font-size:14px;font-weight:600;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:6px 12px;max-width:100%}
+.toolbar a{color:var(--sage-ink);font-weight:600}
+.toolbar select:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:99px;padding:3px;background:var(--card)}
+.seg button{all:unset;cursor:pointer;padding:5px 14px;border-radius:99px;font-weight:600;font-size:13px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--sage);color:var(--sage-ink)}
+.seg button:focus-visible{outline:2px solid var(--focus)}
+.pairs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,500px),1fr));gap:20px;align-items:start}
+.pair{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.pair-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.pair-name{all:unset;font-family:var(--display);font-weight:800;font-size:24px;min-width:0;flex:1;border-bottom:1.5px dashed transparent}
+.pair-name:hover{border-bottom-color:var(--line)}
+.pair-name:focus{border-bottom-color:var(--focus)}
+.remove{all:unset;cursor:pointer;font-size:13px;color:var(--muted);padding:4px 10px;border:1px solid var(--line);border-radius:99px}
+.remove:hover{color:var(--warn);border-color:var(--warn)}
+.remove:focus-visible{outline:2px solid var(--focus)}
+.preview{display:flex;justify-content:center;background:var(--bg);border-radius:14px;padding:18px 8px}
+.preview svg{width:min(260px,70%);height:auto;display:block}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:520px){.slots{grid-template-columns:repeat(2,1fr)}}
+.slot{border:1.5px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.slot:hover{border-color:var(--muted)}
+.slot.on{border-color:var(--focus);box-shadow:0 0 0 2px var(--focus) inset}
+.slot-pick{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:6px;min-width:0}
+.slot-pick:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:6px}
+.slot-top{display:flex;align-items:center;gap:8px}
+.slot-letter{font-family:var(--display);font-weight:800;font-size:18px}
+.slot-role{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.chip{width:100%;height:22px;border-radius:6px;border:1px solid rgba(0,0,0,.12)}
+.slot-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.amt{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.amt input{width:100%;min-width:0;font:inherit;font-size:14px;font-variant-numeric:tabular-nums;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:5px 7px}
+.amt input:focus{outline:2px solid var(--focus);outline-offset:0;border-color:transparent}
+.slot-calc{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;min-height:1.2em}
+.picker{display:flex;flex-direction:column;gap:12px}
+.picker-title{font-size:13px;color:var(--muted)}
+.picker-title b{color:var(--ink)}
+.group h3{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 6px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:6px;max-height:330px;overflow-y:auto;padding:2px}
+.sw{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:3px;align-items:stretch;min-width:0;border-radius:8px;padding:3px}
+.sw:focus-visible{outline:2px solid var(--focus)}
+.sw .dot{aspect-ratio:1;border-radius:7px;border:1px solid rgba(0,0,0,.12);max-width:100%}
+.sw span{font-size:10.5px;line-height:1.15;color:var(--muted);text-align:center;overflow-wrap:anywhere}
+.sw[aria-pressed="true"] .dot{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--focus)}
+.sw[aria-pressed="true"] span{color:var(--ink);font-weight:600}
+.add{all:unset;cursor:pointer;border:2px dashed var(--line);border-radius:18px;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--muted);text-align:center;padding:20px}
+.add:hover{border-color:var(--focus);color:var(--sage-ink)}
+.add:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.add b{font-family:var(--display);font-size:22px;color:var(--ink)}
+.shop{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.shop h2{font-family:var(--display);font-weight:800;font-size:22px;margin:0}
+.shop p{margin:0;color:var(--muted);font-size:13px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+td.num,th.num{text-align:right}
+tfoot td{font-weight:700;border-bottom:none}
+.cname{display:flex;align-items:center;gap:8px}
+.cname i{width:18px;height:18px;border-radius:5px;border:1px solid rgba(0,0,0,.12);flex:none}
+.title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.help-btn{all:unset;cursor:pointer;font-size:14px;font-weight:600;color:var(--sage-ink);background:var(--sage);padding:8px 16px;border-radius:99px}
+.help-btn:hover{filter:brightness(.96)}
+.help-btn:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+dialog#help{border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--ink);padding:24px;max-width:min(460px,calc(100vw - 32px))}
+dialog#help::backdrop{background:rgba(10,12,8,.45)}
+dialog#help h2{font-family:var(--display);font-weight:800;font-size:22px;margin:0 0 12px}
+dialog#help ol{margin:0 0 20px;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+footer{font-size:12px;color:var(--muted);max-width:72ch}
+footer a{color:var(--sage-ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title-row">
+      <h1>Sailor Slippers Colour Planner</h1>
+      <button class="help-btn" id="help-open" aria-haspopup="dialog">How to use</button>
+    </div>
+    <div class="note"><b>Unofficial fan tool.</b> Sailor Slippers is a knitting pattern by Annie Sews. Buy it at <a href="https://www.anniesews.co.uk/sailor-slippers" target="_blank" rel="noopener">anniesews.co.uk</a> for sizes, yarn amounts and instructions. This page is pure yarn purchase planner and has no size and pattern information.</div>
+    <div class="toolbar"><label for="yarn-select">Yarn</label><select id="yarn-select" aria-label="Yarn"></select><a id="yarn-link" target="_blank" rel="noopener" hidden>View yarn ↗</a></div>
+  </header>
+  <div class="pairs" id="pairs"></div>
+  <section class="shop">
+    <h2>Shopping list</h2>
+    <p id="shop-note"></p>
+    <div class="tbl"><table id="shop"></table></div>
+  </section>
+  <dialog id="help" aria-labelledby="help-title">
+    <h2 id="help-title">How to use</h2>
+    <ol>
+      <li>Choose a yarn from the list at the top. Your colour choices are kept for each yarn, so you can switch brands and come back without losing them.</li>
+      <li>Tap A, B, C or D on a pair, then tap a colour to try it on the slippers.</li>
+      <li>Type the grams for each colour from your pattern.</li>
+      <li>Add more pairs if you're knitting several. The shopping list adds up all pairs, so shared colours need fewer balls.</li>
+    </ol>
+    <button class="help-btn" id="help-close">Got it</button>
+  </dialog>
+  <footer>Colours on screen are approximations from shop photos. Your choices are saved in this browser only.</footer>
+</div>
+
+<script>
+const YARN_DIR = "yarns/";
+const YARN_INDEX = YARN_DIR + "index.json";   // lists the yarn files: {"files": ["drops-snow.json", ...]}
+let YARNS = [], YARN, BY = {}, BALL = 50;
+const SLOTS = [["A","main"],["B","stripes"],["C","i-cord"],["D","sole"]];
+const STORE = "sailor-planner-v2";
+const DEFAULT_GRAMS = {A:"100", B:"100", C:"50", D:"100"};
+let state;
+function fresh(){ return {unit:"g", yarn:null, next:2, pairs:[newPair(1)]}; }
+function newPair(n){
+  return {id:"p"+n, name:"Pair "+n, active:"A",
+    pick:{}, amt:{...DEFAULT_GRAMS}};
+}
+function addPair(){ const np=newPair(state.next++); if(YARN) fixPicks(np, state.next-2); state.pairs.push(np); return np; }
+// Keeps every pair's colours valid for the current yarn: unknown numbers come from the yarn file's "presets",
+// or, if it has none, from a spread of its colours
+function fixPicks(p, idx){
+  const cols=YARN.colours, presets=Array.isArray(YARN.presets)?YARN.presets:[], preset=presets.length?presets[idx%presets.length]:{};
+  p.pick=p.pick||{};
+  SLOTS.forEach(([k],i)=>{
+    if(BY[p.pick[k]]) return;
+    p.pick[k] = BY[preset[k]] ? preset[k] : cols[(idx*5 + i*13) % cols.length].number;
+  });
+}
+function loadState(){
+try{
+  const s=JSON.parse(localStorage.getItem(STORE)||"null");
+  if(s && Array.isArray(s.pairs) && s.pairs.length){
+    s.pairs.forEach(p=>SLOTS.forEach(([k])=>{ p.pick=p.pick||{}; if(p.amt?.[k]==null || p.amt[k]==="") (p.amt||(p.amt={}))[k]=DEFAULT_GRAMS[k]; }));
+    state=s;
+  }
+}catch(e){}
+if(!state) state=fresh();
+if(state.unit==="b"){ state.pairs.forEach(p=>SLOTS.forEach(([k])=>{ const n=num(p.amt[k]); if(n) p.amt[k]=String(Math.round(n*BALL)); })); }
+state.unit="g";
+}
+function save(){
+  if(state.yarn) state.pairs.forEach(p=>{ p.picks=p.picks||{}; p.picks[state.yarn]={...p.pick}; });
+  try{localStorage.setItem(STORE,JSON.stringify(state));}catch(e){} }
+
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num = v => { const n=parseFloat(String(v).replace(",",".")); return isFinite(n)&&n>0?n:0; };
+const swatchBg = y => y.hex;
+
+const OUTER = "M60 6 C100 6 112 42 112 84 L112 198 C112 238 90 254 60 254 C30 254 8 238 8 198 L8 84 C8 42 20 6 60 6 Z";
+const OPEN  = "M60 134 C86 134 95 150 95 176 L95 208 C95 230 82 241 60 241 C38 241 25 230 25 208 L25 176 C25 150 34 134 60 134 Z";
+function slipperSVG(p){
+  const defs=[]; const f={};
+  SLOTS.forEach(([k])=>f[k]=BY[p.pick[k]].hex);
+  let stripes=""; const h=13;
+  for(let i=0;i<20;i++){ if(i%2) stripes+=`<rect x="0" y="${170-(i+1)*h}" width="120" height="${h}" fill="${f.B}"/>`; }
+  const heel=`<rect x="0" y="170" width="120" height="90" fill="${f.A}"/>`;
+  const one=(tx,rot,flip)=>`
+    <g transform="translate(${tx} 8) rotate(${rot} 60 130) ${flip?'translate(120 0) scale(-1 1)':''}">
+      <clipPath id="c-${p.id}-${tx}"><path d="${OUTER}"/></clipPath>
+      <path d="${OUTER}" fill="${f.D}" transform="translate(0 3)" opacity=".9"/>
+      <g clip-path="url(#c-${p.id}-${tx})">
+        <rect width="120" height="260" fill="${f.A}"/>${stripes}${heel}
+        <rect x="0" y="236" width="120" height="30" fill="${f.D}"/>
+        <rect width="120" height="260" filter="url(#fz-${p.id})" opacity=".18"/>
+      </g>
+      <path d="${OUTER}" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="1"/>
+      <path d="${OPEN}" fill="${f.D}"/>
+      <path d="${OPEN}" fill="url(#shade-${p.id})"/>
+      <path d="${OPEN}" fill="none" stroke="${f.C}" stroke-width="10"/>
+    </g>`;
+  return `<svg viewBox="0 0 270 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(p.name)} preview">
+    <defs>${defs.join("")}
+      <filter id="fz-${p.id}"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.2 -.35"/></filter>
+      <radialGradient id="shade-${p.id}" cx=".5" cy=".3" r=".7"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity=".05"/></radialGradient>
+    </defs>
+    ${one(8,-3,true)}${one(142,3,false)}
+  </svg>`;
+}
+
+const unitLabel = () => state.unit==="g" ? "g" : "balls";
+function calcText(v){
+  const n=num(v); if(!n) return "";
+  if(state.unit==="g"){ const b=Math.ceil(n/BALL); return `≈ ${b} ball${b>1?"s":""}`; }
+  return `= ${Math.round(n*BALL)} g`;
+}
+
+function renderPair(p){
+  const sel=p.active;
+  const slots=SLOTS.map(([k,role])=>{
+    const y=BY[p.pick[k]];
+    return `<div class="slot${k===sel?" on":""}">
+      <button class="slot-pick" id="slot-${p.id}-${k}" data-act="slot" data-pair="${p.id}" data-slot="${k}" aria-pressed="${k===sel}">
+        <div class="slot-top"><span class="slot-letter">${k}</span><span class="slot-role">${role}</span></div>
+        <div class="chip" style="background:${swatchBg(y)}"></div>
+        <div class="slot-name" title="${esc(y.name)} (${y.no})">${esc(y.name)} <span style="color:var(--muted);font-weight:400">${y.no}</span></div>
+      </button>
+      <label class="amt"><input type="number" inputmode="decimal" min="0" step="${state.unit==="g"?5:0.5}" id="amt-${p.id}-${k}" data-pair="${p.id}" data-slot="${k}" value="${esc(p.amt[k])}" placeholder="0" aria-label="${k} amount in ${unitLabel()}"><span>${unitLabel()}</span></label>
+      <div class="slot-calc" id="calc-${p.id}-${k}">${calcText(p.amt[k])}</div>
+    </div>`;}).join("");
+  const groups=YARN.groups.map(({type:t,label})=>
+    `<div class="group"><h3>${esc(label)}</h3><div class="grid">${YARN.colours.filter(c=>c.type===t).map(c=>{const o=BY[c.number];
+      return `<button class="sw" id="sw-${p.id}-${o.no}" data-act="sw" data-pair="${p.id}" data-no="${o.no}" aria-pressed="${p.pick[sel]===o.no}" title="${esc(o.name)} (${o.no})">
+        <div class="dot" style="background:${swatchBg(o)}"></div><span>${esc(o.name)} ${o.no}</span></button>`}).join("")}</div></div>`).join("");
+  const role=SLOTS.find(s=>s[0]===sel)[1];
+  return `<section class="pair" id="pair-${p.id}">
+    <div class="pair-head">
+      <input class="pair-name" id="name-${p.id}" data-pair="${p.id}" value="${esc(p.name)}" aria-label="Pair name" maxlength="40">
+      ${state.pairs.length>1?`<button class="remove" data-act="remove" data-pair="${p.id}">Remove</button>`:""}
+    </div>
+    <div class="preview">${slipperSVG(p)}</div>
+    <div class="slots">${slots}</div>
+    <div class="picker"><div class="picker-title">Choosing colour for <b>${sel} · ${role}</b></div>${groups}</div>
+  </section>`;
+}
+
+function renderShop(){
+  const m=new Map(); let any=false;
+  state.pairs.forEach(p=>SLOTS.forEach(([k])=>{
+    const no=p.pick[k]; const e=m.get(no)||{v:0,uses:[]};
+    const n=num(p.amt[k]); if(n) any=true;
+    e.v+=n; e.uses.push(`${p.name} ${k}`); m.set(no,e);}));
+  const g = state.unit==="g";
+  document.getElementById("shop-note").textContent = g
+    ? `Grams for each colour are added up across all pairs, then rounded up to whole ${BALL} g balls. Spare is what's left over after knitting the amounts you entered.`
+    : "Balls for each colour are added up across all pairs. Half balls are rounded up when you buy.";
+  let total=0, rows="";
+  [...m.entries()].sort((a,b)=>b[1].v-a[1].v).forEach(([no,e])=>{
+    const y=BY[no];
+    let need, balls, spare="";
+    if(g){ balls=Math.ceil(e.v/BALL); need=e.v?`${+e.v.toFixed(1)} g`:"–"; const s=balls*BALL-e.v;
+      spare = e.v ? `${+s.toFixed(1)} g` : "–"; }
+    else { balls=Math.ceil(e.v); need=e.v?`${+e.v.toFixed(2)} balls`:"–"; spare = e.v ? `${+(balls*BALL-e.v*BALL).toFixed(1)} g` : "–"; }
+    total+=balls;
+    rows+=`<tr><td><span class="cname"><i style="background:${swatchBg(y)}"></i>${esc(y.name)} (${no})</span></td>
+      <td>${e.uses.map(esc).join(", ")}</td><td class="num">${need}</td><td class="num">${balls||"–"}</td><td class="num">${spare}</td></tr>`;});
+  let separate=0;
+  state.pairs.forEach(p=>{const mm={};SLOTS.forEach(([k])=>mm[p.pick[k]]=(mm[p.pick[k]]||0)+num(p.amt[k]));
+    Object.values(mm).forEach(v=>separate+= g?Math.ceil(v/BALL):Math.ceil(v));});
+  const saved = state.pairs.length>1 && separate>total ? ` (${separate-total} fewer than buying for each pair separately)` : "";
+  document.getElementById("shop").innerHTML = `<thead><tr><th>Colour</th><th>Used for</th><th class="num">Needed</th><th class="num">Balls</th><th class="num">Spare</th></tr></thead>
+    <tbody>${rows}</tbody><tfoot><tr><td colspan="3">${any?"Total"+saved:"Type the amounts from your pattern above to see the total"}</td><td class="num">${any?total:"–"}</td><td></td></tr></tfoot>`;
+}
+
+function render(){
+  const el=document.getElementById("pairs");
+  el.innerHTML = state.pairs.map(renderPair).join("") +
+    `<button class="add" id="add-pair" data-act="add"><b>+ Add a pair</b><span>Plan another pair and share yarn between them</span></button>`;
+  renderShop();
+}
+const findPair = id => state.pairs.find(p=>p.id===id);
+
+document.getElementById("pairs").addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]"); if(!b) return;
+  const act=b.dataset.act, p=findPair(b.dataset.pair);
+  if(act==="slot"){ p.active=b.dataset.slot; save(); render(); document.getElementById(`slot-${p.id}-${p.active}`).focus(); }
+  else if(act==="sw"){
+    p.pick[p.active]=b.dataset.no; save();
+    const grids=[...document.querySelectorAll(`#pair-${p.id} .grid`)], gi=grids.indexOf(b.closest(".grid")), st=grids[gi].scrollTop;
+    render(); document.querySelectorAll(`#pair-${p.id} .grid`)[gi].scrollTop=st;
+    document.getElementById(`sw-${p.id}-${b.dataset.no}`).focus({preventScroll:true});
+  }
+  else if(act==="remove"){ state.pairs=state.pairs.filter(x=>x!==p); save(); render(); }
+  else if(act==="add"){ const np=addPair(); save(); render();
+    document.getElementById(`pair-${np.id}`).scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"}); }
+});
+document.getElementById("pairs").addEventListener("input",e=>{
+  const t=e.target, p=findPair(t.dataset.pair); if(!p) return;
+  if(t.classList.contains("pair-name")){ p.name=t.value||"Pair"; save(); renderShop(); return; }
+  if(t.id.startsWith("amt-")){ p.amt[t.dataset.slot]=t.value; save();
+    document.getElementById(`calc-${p.id}-${t.dataset.slot}`).textContent=calcText(t.value); renderShop(); }
+});
+function useYarn(file){
+  const y=YARNS.find(y=>y.file===file)||YARNS[0];
+  YARN=y.data; state.yarn=y.file;
+  BALL=YARN.ballWeightGrams||50;
+  BY=Object.fromEntries(YARN.colours.map(c=>[c.number,{no:c.number,name:c.name,hex:c.hex,type:c.type}]));
+  state.pairs.forEach((p,i)=>fixPicks(p,i));
+  document.getElementById("yarn-select").value=y.file;
+  const link=document.getElementById("yarn-link"), url=String(YARN.url||"");
+  if(/^https?:\/\//.test(url)){ link.href=url; link.textContent=`View ${YARN.name||"yarn"} ↗`; link.hidden=false; } else link.hidden=true;
+}
+// Colour numbers mean different colours in each brand, so each pair remembers its colours per yarn (p.picks[file]).
+// Switching back restores them; a yarn the pair hasn't used yet starts from that yarn's presets.
+document.getElementById("yarn-select").addEventListener("change",e=>{
+  const next=e.target.value;
+  save();   // stores the current yarn's colours in p.picks
+  state.pairs.forEach(p=>{ p.pick={...((p.picks||{})[next]||{})}; });
+  useYarn(next); save(); render();
+});
+
+async function start(){
+  const fail=msg=>{ document.getElementById("pairs").innerHTML=`<p class="note">${msg} If you opened this file directly from your computer, run a local web server instead, for example <code>python3 -m http.server</code> in this folder.</p>`; };
+  let files;
+  try{
+    const r=await fetch(YARN_INDEX); if(!r.ok) throw new Error(r.status);
+    files=(await r.json()).files||[];
+  }catch(e){ fail(`Couldn't load the yarn list (${esc(YARN_INDEX)}).`); return; }
+  const loaded=await Promise.all(files.map(async f=>{
+    try{ const r=await fetch(YARN_DIR+f); if(!r.ok) throw 0; const d=await r.json();
+      return Array.isArray(d.colours)&&d.colours.length ? {file:f,data:d} : null; }catch(e){ return null; }
+  }));
+  YARNS=loaded.filter(Boolean);
+  if(!YARNS.length){ fail("Couldn't load any yarn files."); return; }
+  document.getElementById("yarn-select").innerHTML=YARNS.map(y=>`<option value="${esc(y.file)}">${esc(y.data.name||y.file)}</option>`).join("");
+  loadState();
+  useYarn(state.yarn);
+  save();
+  render();
+}
+const help=document.getElementById("help");
+document.getElementById("help-open").addEventListener("click",()=>help.showModal());
+document.getElementById("help-close").addEventListener("click",()=>help.close());
+help.addEventListener("click",e=>{ if(e.target===help) help.close(); });
+start();
+</script>
+</body>
+</html>
