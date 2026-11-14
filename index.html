@@ -95,6 +95,7 @@ tfoot td{font-weight:700;border-bottom:none}
 .cname{display:flex;align-items:center;gap:8px}
 .cname i{width:18px;height:18px;border-radius:5px;border:1px solid rgba(0,0,0,.12);flex:none}
 .title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.title-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .help-btn{all:unset;cursor:pointer;font-size:14px;font-weight:600;color:var(--sage-ink);background:var(--sage);padding:8px 16px;border-radius:99px}
 .help-btn:hover{filter:brightness(.96)}
 .help-btn:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
@@ -110,32 +111,126 @@ footer a{color:var(--sage-ink)}
 <div class="wrap">
   <header>
     <div class="title-row">
-      <h1>Sailor Slippers Colour Planner</h1>
-      <button class="help-btn" id="help-open" aria-haspopup="dialog">How to use</button>
+      <h1 data-i18n="title">Sailor Slippers Colour Planner</h1>
+      <div class="title-actions">
+        <div class="seg" role="group" aria-label="Language" id="lang-switch">
+          <button id="lang-en" data-lang="en" lang="en">EN</button>
+          <button id="lang-ru" data-lang="ru" lang="ru">RU</button>
+        </div>
+        <button class="help-btn" id="help-open" aria-haspopup="dialog" data-i18n="howTo">How to use</button>
+      </div>
     </div>
-    <div class="note"><b>Unofficial fan tool.</b> Sailor Slippers is a knitting pattern by Annie Sews. Buy it at <a href="https://www.anniesews.co.uk/sailor-slippers" target="_blank" rel="noopener">anniesews.co.uk</a> for sizes, yarn amounts and instructions. This page is pure yarn purchase planner and has no size and pattern information.</div>
-    <div class="toolbar"><label for="yarn-select">Yarn</label><select id="yarn-select" aria-label="Yarn"></select><a id="yarn-link" target="_blank" rel="noopener" hidden>View yarn ↗</a></div>
+    <div class="note" data-i18n="note"><b>Unofficial fan tool.</b> Sailor Slippers is a knitting pattern by Annie Sews. Buy it at <a href="https://www.anniesews.co.uk/sailor-slippers" target="_blank" rel="noopener">anniesews.co.uk</a> for sizes, yarn amounts and instructions. This page is pure yarn purchase planner and has no size and pattern information.</div>
+    <div class="toolbar"><label for="yarn-select" data-i18n="yarn">Yarn</label><select id="yarn-select" aria-label="Yarn"></select><a id="yarn-link" target="_blank" rel="noopener" hidden>View yarn ↗</a></div>
   </header>
   <div class="pairs" id="pairs"></div>
   <section class="shop">
-    <h2>Shopping list</h2>
+    <h2 data-i18n="shopTitle">Shopping list</h2>
     <p id="shop-note"></p>
     <div class="tbl"><table id="shop"></table></div>
   </section>
   <dialog id="help" aria-labelledby="help-title">
-    <h2 id="help-title">How to use</h2>
+    <h2 id="help-title" data-i18n="howTo">How to use</h2>
     <ol>
-      <li>Choose a yarn from the list at the top. Your colour choices are kept for each yarn, so you can switch brands and come back without losing them.</li>
-      <li>Tap A, B, C or D on a pair, then tap a colour to try it on the slippers.</li>
-      <li>Type the grams for each colour from your pattern.</li>
-      <li>Add more pairs if you're knitting several. The shopping list adds up all pairs, so shared colours need fewer balls.</li>
+      <li data-i18n="step1">Choose a yarn from the list at the top. Your colour choices are kept for each yarn, so you can switch brands and come back without losing them.</li>
+      <li data-i18n="step2">Tap A, B, C or D on a pair, then tap a colour to try it on the slippers.</li>
+      <li data-i18n="step3">Type the grams for each colour from your pattern.</li>
+      <li data-i18n="step4">Add more pairs if you're knitting several. The shopping list adds up all pairs, so shared colours need fewer balls.</li>
     </ol>
-    <button class="help-btn" id="help-close">Got it</button>
+    <button class="help-btn" id="help-close" data-i18n="gotIt">Got it</button>
   </dialog>
-  <footer>Colours on screen are approximations from shop photos. Your choices are saved in this browser only.</footer>
+  <footer data-i18n="footer">Colours on screen are approximations from shop photos. Your choices are saved in this browser only.</footer>
 </div>
 
 <script>
+// ---------- Languages ----------
+// Yarn, colour and brand names come from the yarn files and are never translated.
+const I18N = {
+  en: {
+    htmlTitle: "Sailor Slippers Colour Planner",
+    title: "Sailor Slippers Colour Planner",
+    howTo: "How to use",
+    note: `<b>Unofficial fan tool.</b> Sailor Slippers is a knitting pattern by Annie Sews. Buy it at <a href="https://www.anniesews.co.uk/sailor-slippers" target="_blank" rel="noopener">anniesews.co.uk</a> for sizes, yarn amounts and instructions. This page is pure yarn purchase planner and has no size and pattern information.`,
+    yarn: "Yarn",
+    viewYarn: n => `View ${n} ↗`,
+    shopTitle: "Shopping list",
+    step1: "Choose a yarn from the list at the top. Your colour choices are kept for each yarn, so you can switch brands and come back without losing them.",
+    step2: "Tap A, B, C or D on a pair, then tap a colour to try it on the slippers.",
+    step3: "Type the grams for each colour from your pattern.",
+    step4: "Add more pairs if you're knitting several. The shopping list adds up all pairs, so shared colours need fewer balls.",
+    gotIt: "Got it",
+    footer: "Colours on screen are approximations from shop photos. Your choices are saved in this browser only.",
+    roles: {A:"main", B:"stripes", C:"i-cord", D:"sole"},
+    g: "g",
+    balls: n => n===1 ? "ball" : "balls",
+    amountLabel: k => `${k} amount in grams`,
+    pairName: "Pair name",
+    pair: "Pair",
+    remove: "Remove",
+    choosing: "Choosing colour for",
+    preview: n => `${n} preview`,
+    shopNoteG: b => `Grams for each colour are added up across all pairs, then rounded up to whole ${b} g balls. Spare is what's left over after knitting the amounts you entered.`,
+    shopNoteB: "Balls for each colour are added up across all pairs. Half balls are rounded up when you buy.",
+    thColour: "Colour", thUsed: "Used for", thNeeded: "Needed", thBalls: "Balls", thSpare: "Spare",
+    total: "Total",
+    saved: n => ` (${n} fewer than buying for each pair separately)`,
+    noTotal: "Type the amounts from your pattern above to see the total",
+    addPair: "+ Add a pair",
+    addPairSub: "Plan another pair and share yarn between them",
+    loadIndexFail: f => `Couldn't load the yarn list (${f}).`,
+    loadYarnsFail: "Couldn't load any yarn files.",
+    localHint: `If you opened this file directly from your computer, run a local web server instead, for example <code>python3 -m http.server</code> in this folder.`
+  },
+  ru: {
+    htmlTitle: "Планировщик цветов Sailor Slippers",
+    title: "Планировщик цветов Sailor Slippers",
+    howTo: "Как пользоваться",
+    note: `<b>Неофициальный фан-инструмент.</b> Sailor Slippers — схема вязания от Annie Sews. Купите её на <a href="https://www.anniesews.co.uk/sailor-slippers" target="_blank" rel="noopener">anniesews.co.uk</a>, чтобы узнать размеры, расход пряжи и инструкции. Эта страница только помогает спланировать покупку пряжи и не содержит размеров и информации из схемы.`,
+    yarn: "Пряжа",
+    viewYarn: n => `${n} в магазине ↗`,
+    shopTitle: "Список покупок",
+    step1: "Выберите пряжу в списке вверху. Выбранные цвета запоминаются для каждой пряжи, поэтому можно переключаться между брендами и возвращаться, ничего не теряя.",
+    step2: "Нажмите A, B, C или D у пары, затем нажмите на цвет, чтобы примерить его на тапочки.",
+    step3: "Введите количество граммов для каждого цвета из вашей схемы.",
+    step4: "Добавьте ещё пары, если вяжете несколько. Список покупок складывает все пары, поэтому для общих цветов нужно меньше мотков.",
+    gotIt: "Понятно",
+    footer: "Цвета на экране приблизительные, по фотографиям из магазинов. Ваш выбор сохраняется только в этом браузере.",
+    roles: {A:"основной", B:"полоски", C:"i-корд", D:"подошва"},
+    g: "г",
+    balls: n => { const a=n%10, b=n%100; return (a===1&&b!==11) ? "моток" : (a>=2&&a<=4&&(b<12||b>14)) ? "мотка" : "мотков"; },
+    amountLabel: k => `${k}: количество в граммах`,
+    pairName: "Название пары",
+    pair: "Пара",
+    remove: "Удалить",
+    choosing: "Выбор цвета для",
+    preview: n => `${n}: предпросмотр`,
+    shopNoteG: b => `Граммы каждого цвета складываются по всем парам и округляются вверх до целых мотков по ${b} г. Остаток — сколько пряжи останется после вязания введённого количества.`,
+    shopNoteB: "Мотки каждого цвета складываются по всем парам. При покупке половинки округляются вверх.",
+    thColour: "Цвет", thUsed: "Для чего", thNeeded: "Нужно", thBalls: "Мотки", thSpare: "Остаток",
+    total: "Итого",
+    saved: n => ` (на ${n} ${I18N.ru.balls(n)} меньше, чем при покупке для каждой пары отдельно)`,
+    noTotal: "Введите количество из вашей схемы выше, чтобы увидеть итог",
+    addPair: "+ Добавить пару",
+    addPairSub: "Спланируйте ещё одну пару с общей пряжей",
+    loadIndexFail: f => `Не удалось загрузить список пряжи (${f}).`,
+    loadYarnsFail: "Не удалось загрузить файлы пряжи.",
+    localHint: `Если вы открыли файл прямо с компьютера, запустите локальный веб-сервер, например <code>python3 -m http.server</code> в этой папке.`
+  }
+};
+const LANG_STORE = "sailor-planner-lang";
+let LANG = "en";
+try{ LANG = localStorage.getItem(LANG_STORE) || ""; }catch(e){}
+if(!I18N[LANG]) LANG = (navigator.language||"").toLowerCase().startsWith("ru") ? "ru" : "en";
+const T = () => I18N[LANG];
+const groupLabel = g => (g.labels && g.labels[LANG]) || g.label;
+function applyStatic(){
+  document.documentElement.lang = LANG;
+  document.title = T().htmlTitle;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ const v=T()[el.dataset.i18n]; if(typeof v==="string") el.innerHTML=v; });
+  document.querySelectorAll("#lang-switch button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.lang===LANG));
+}
+applyStatic();
+
 const YARN_DIR = "yarns/";
 const YARN_INDEX = YARN_DIR + "index.json";   // lists the yarn files: {"files": ["drops-snow.json", ...]}
 let YARNS = [], YARN, BY = {}, BALL = 50;
@@ -145,7 +240,7 @@ const DEFAULT_GRAMS = {A:"100", B:"100", C:"50", D:"100"};
 let state;
 function fresh(){ return {unit:"g", yarn:null, next:2, pairs:[newPair(1)]}; }
 function newPair(n){
-  return {id:"p"+n, name:"Pair "+n, active:"A",
+  return {id:"p"+n, name:`${T().pair} ${n}`, active:"A",
     pick:{}, amt:{...DEFAULT_GRAMS}};
 }
 function addPair(){ const np=newPair(state.next++); if(YARN) fixPicks(np, state.next-2); state.pairs.push(np); return np; }
@@ -201,7 +296,7 @@ function slipperSVG(p){
       <path d="${OPEN}" fill="url(#shade-${p.id})"/>
       <path d="${OPEN}" fill="none" stroke="${f.C}" stroke-width="10"/>
     </g>`;
-  return `<svg viewBox="0 0 270 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(p.name)} preview">
+  return `<svg viewBox="0 0 270 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(T().preview(p.name))}">
     <defs>${defs.join("")}
       <filter id="fz-${p.id}"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.2 -.35"/></filter>
       <radialGradient id="shade-${p.id}" cx=".5" cy=".3" r=".7"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity=".05"/></radialGradient>
@@ -210,11 +305,11 @@ function slipperSVG(p){
   </svg>`;
 }
 
-const unitLabel = () => state.unit==="g" ? "g" : "balls";
+const unitLabel = () => state.unit==="g" ? T().g : T().balls(2);
 function calcText(v){
   const n=num(v); if(!n) return "";
-  if(state.unit==="g"){ const b=Math.ceil(n/BALL); return `≈ ${b} ball${b>1?"s":""}`; }
-  return `= ${Math.round(n*BALL)} g`;
+  if(state.unit==="g"){ const b=Math.ceil(n/BALL); return `≈ ${b} ${T().balls(b)}`; }
+  return `= ${Math.round(n*BALL)} ${T().g}`;
 }
 
 function renderPair(p){
@@ -223,26 +318,26 @@ function renderPair(p){
     const y=BY[p.pick[k]];
     return `<div class="slot${k===sel?" on":""}">
       <button class="slot-pick" id="slot-${p.id}-${k}" data-act="slot" data-pair="${p.id}" data-slot="${k}" aria-pressed="${k===sel}">
-        <div class="slot-top"><span class="slot-letter">${k}</span><span class="slot-role">${role}</span></div>
+        <div class="slot-top"><span class="slot-letter">${k}</span><span class="slot-role">${T().roles[k]}</span></div>
         <div class="chip" style="background:${swatchBg(y)}"></div>
         <div class="slot-name" title="${esc(y.name)} (${y.no})">${esc(y.name)} <span style="color:var(--muted);font-weight:400">${y.no}</span></div>
       </button>
-      <label class="amt"><input type="number" inputmode="decimal" min="0" step="${state.unit==="g"?5:0.5}" id="amt-${p.id}-${k}" data-pair="${p.id}" data-slot="${k}" value="${esc(p.amt[k])}" placeholder="0" aria-label="${k} amount in ${unitLabel()}"><span>${unitLabel()}</span></label>
+      <label class="amt"><input type="number" inputmode="decimal" min="0" step="${state.unit==="g"?5:0.5}" id="amt-${p.id}-${k}" data-pair="${p.id}" data-slot="${k}" value="${esc(p.amt[k])}" placeholder="0" aria-label="${esc(T().amountLabel(k))}"><span>${unitLabel()}</span></label>
       <div class="slot-calc" id="calc-${p.id}-${k}">${calcText(p.amt[k])}</div>
     </div>`;}).join("");
   const groups=YARN.groups.map(({type:t,label})=>
-    `<div class="group"><h3>${esc(label)}</h3><div class="grid">${YARN.colours.filter(c=>c.type===t).map(c=>{const o=BY[c.number];
+    `<div class="group"><h3>${esc(groupLabel(YARN.groups.find(g=>g.type===t)))}</h3><div class="grid">${YARN.colours.filter(c=>c.type===t).map(c=>{const o=BY[c.number];
       return `<button class="sw" id="sw-${p.id}-${o.no}" data-act="sw" data-pair="${p.id}" data-no="${o.no}" aria-pressed="${p.pick[sel]===o.no}" title="${esc(o.name)} (${o.no})">
         <div class="dot" style="background:${swatchBg(o)}"></div><span>${esc(o.name)} ${o.no}</span></button>`}).join("")}</div></div>`).join("");
   const role=SLOTS.find(s=>s[0]===sel)[1];
   return `<section class="pair" id="pair-${p.id}">
     <div class="pair-head">
-      <input class="pair-name" id="name-${p.id}" data-pair="${p.id}" value="${esc(p.name)}" aria-label="Pair name" maxlength="40">
-      ${state.pairs.length>1?`<button class="remove" data-act="remove" data-pair="${p.id}">Remove</button>`:""}
+      <input class="pair-name" id="name-${p.id}" data-pair="${p.id}" value="${esc(p.name)}" aria-label="${esc(T().pairName)}" maxlength="40">
+      ${state.pairs.length>1?`<button class="remove" data-act="remove" data-pair="${p.id}">${T().remove}</button>`:""}
     </div>
     <div class="preview">${slipperSVG(p)}</div>
     <div class="slots">${slots}</div>
-    <div class="picker"><div class="picker-title">Choosing colour for <b>${sel} · ${role}</b></div>${groups}</div>
+    <div class="picker"><div class="picker-title">${T().choosing} <b>${sel} · ${T().roles[sel]}</b></div>${groups}</div>
   </section>`;
 }
 
@@ -254,30 +349,30 @@ function renderShop(){
     e.v+=n; e.uses.push(`${p.name} ${k}`); m.set(no,e);}));
   const g = state.unit==="g";
   document.getElementById("shop-note").textContent = g
-    ? `Grams for each colour are added up across all pairs, then rounded up to whole ${BALL} g balls. Spare is what's left over after knitting the amounts you entered.`
-    : "Balls for each colour are added up across all pairs. Half balls are rounded up when you buy.";
+    ? T().shopNoteG(BALL)
+    : T().shopNoteB;
   let total=0, rows="";
   [...m.entries()].sort((a,b)=>b[1].v-a[1].v).forEach(([no,e])=>{
     const y=BY[no];
     let need, balls, spare="";
-    if(g){ balls=Math.ceil(e.v/BALL); need=e.v?`${+e.v.toFixed(1)} g`:"–"; const s=balls*BALL-e.v;
-      spare = e.v ? `${+s.toFixed(1)} g` : "–"; }
-    else { balls=Math.ceil(e.v); need=e.v?`${+e.v.toFixed(2)} balls`:"–"; spare = e.v ? `${+(balls*BALL-e.v*BALL).toFixed(1)} g` : "–"; }
+    if(g){ balls=Math.ceil(e.v/BALL); need=e.v?`${+e.v.toFixed(1)} ${T().g}`:"–"; const s=balls*BALL-e.v;
+      spare = e.v ? `${+s.toFixed(1)} ${T().g}` : "–"; }
+    else { balls=Math.ceil(e.v); need=e.v?`${+e.v.toFixed(2)} ${T().balls(2)}`:"–"; spare = e.v ? `${+(balls*BALL-e.v*BALL).toFixed(1)} ${T().g}` : "–"; }
     total+=balls;
     rows+=`<tr><td><span class="cname"><i style="background:${swatchBg(y)}"></i>${esc(y.name)} (${no})</span></td>
       <td>${e.uses.map(esc).join(", ")}</td><td class="num">${need}</td><td class="num">${balls||"–"}</td><td class="num">${spare}</td></tr>`;});
   let separate=0;
   state.pairs.forEach(p=>{const mm={};SLOTS.forEach(([k])=>mm[p.pick[k]]=(mm[p.pick[k]]||0)+num(p.amt[k]));
     Object.values(mm).forEach(v=>separate+= g?Math.ceil(v/BALL):Math.ceil(v));});
-  const saved = state.pairs.length>1 && separate>total ? ` (${separate-total} fewer than buying for each pair separately)` : "";
-  document.getElementById("shop").innerHTML = `<thead><tr><th>Colour</th><th>Used for</th><th class="num">Needed</th><th class="num">Balls</th><th class="num">Spare</th></tr></thead>
-    <tbody>${rows}</tbody><tfoot><tr><td colspan="3">${any?"Total"+saved:"Type the amounts from your pattern above to see the total"}</td><td class="num">${any?total:"–"}</td><td></td></tr></tfoot>`;
+  const saved = state.pairs.length>1 && separate>total ? T().saved(separate-total) : "";
+  document.getElementById("shop").innerHTML = `<thead><tr><th>${T().thColour}</th><th>${T().thUsed}</th><th class="num">${T().thNeeded}</th><th class="num">${T().thBalls}</th><th class="num">${T().thSpare}</th></tr></thead>
+    <tbody>${rows}</tbody><tfoot><tr><td colspan="3">${any?T().total+saved:T().noTotal}</td><td class="num">${any?total:"–"}</td><td></td></tr></tfoot>`;
 }
 
 function render(){
   const el=document.getElementById("pairs");
   el.innerHTML = state.pairs.map(renderPair).join("") +
-    `<button class="add" id="add-pair" data-act="add"><b>+ Add a pair</b><span>Plan another pair and share yarn between them</span></button>`;
+    `<button class="add" id="add-pair" data-act="add"><b>${T().addPair}</b><span>${T().addPairSub}</span></button>`;
   renderShop();
 }
 const findPair = id => state.pairs.find(p=>p.id===id);
@@ -298,7 +393,7 @@ document.getElementById("pairs").addEventListener("click",e=>{
 });
 document.getElementById("pairs").addEventListener("input",e=>{
   const t=e.target, p=findPair(t.dataset.pair); if(!p) return;
-  if(t.classList.contains("pair-name")){ p.name=t.value||"Pair"; save(); renderShop(); return; }
+  if(t.classList.contains("pair-name")){ p.name=t.value||T().pair; save(); renderShop(); return; }
   if(t.id.startsWith("amt-")){ p.amt[t.dataset.slot]=t.value; save();
     document.getElementById(`calc-${p.id}-${t.dataset.slot}`).textContent=calcText(t.value); renderShop(); }
 });
@@ -310,7 +405,7 @@ function useYarn(file){
   state.pairs.forEach((p,i)=>fixPicks(p,i));
   document.getElementById("yarn-select").value=y.file;
   const link=document.getElementById("yarn-link"), url=String(YARN.url||"");
-  if(/^https?:\/\//.test(url)){ link.href=url; link.textContent=`View ${YARN.name||"yarn"} ↗`; link.hidden=false; } else link.hidden=true;
+  if(/^https?:\/\//.test(url)){ link.href=url; link.textContent=T().viewYarn(YARN.name||""); link.hidden=false; } else link.hidden=true;
 }
 // Colour numbers mean different colours in each brand, so each pair remembers its colours per yarn (p.picks[file]).
 // Switching back restores them; a yarn the pair hasn't used yet starts from that yarn's presets.
@@ -322,24 +417,34 @@ document.getElementById("yarn-select").addEventListener("change",e=>{
 });
 
 async function start(){
-  const fail=msg=>{ document.getElementById("pairs").innerHTML=`<p class="note">${msg} If you opened this file directly from your computer, run a local web server instead, for example <code>python3 -m http.server</code> in this folder.</p>`; };
+  const fail=msg=>{ document.getElementById("pairs").innerHTML=`<p class="note">${msg} ${T().localHint}</p>`; };
   let files;
   try{
     const r=await fetch(YARN_INDEX); if(!r.ok) throw new Error(r.status);
     files=(await r.json()).files||[];
-  }catch(e){ fail(`Couldn't load the yarn list (${esc(YARN_INDEX)}).`); return; }
+  }catch(e){ fail(T().loadIndexFail(esc(YARN_INDEX))); return; }
   const loaded=await Promise.all(files.map(async f=>{
     try{ const r=await fetch(YARN_DIR+f); if(!r.ok) throw 0; const d=await r.json();
       return Array.isArray(d.colours)&&d.colours.length ? {file:f,data:d} : null; }catch(e){ return null; }
   }));
   YARNS=loaded.filter(Boolean);
-  if(!YARNS.length){ fail("Couldn't load any yarn files."); return; }
+  if(!YARNS.length){ fail(T().loadYarnsFail); return; }
   document.getElementById("yarn-select").innerHTML=YARNS.map(y=>`<option value="${esc(y.file)}">${esc(y.data.name||y.file)}</option>`).join("");
   loadState();
   useYarn(state.yarn);
   save();
   render();
 }
+document.getElementById("lang-switch").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-lang]"); if(!b || b.dataset.lang===LANG) return;
+  LANG=b.dataset.lang; try{ localStorage.setItem(LANG_STORE,LANG); }catch(err){}
+  applyStatic();
+  if(!state) return;
+  // rename pairs that still have their default name ("Pair 2" <-> "Пара 2")
+  state.pairs.forEach(p=>{ const m=String(p.name).match(/^(Pair|Пара) (\d+)$/); if(m) p.name=`${T().pair} ${m[2]}`; });
+  if(YARN) useYarn(state.yarn);
+  save(); render();
+});
 const help=document.getElementById("help");
 document.getElementById("help-open").addEventListener("click",()=>help.showModal());
 document.getElementById("help-close").addEventListener("click",()=>help.close());

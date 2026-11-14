@@ -30,7 +30,7 @@ Colour choices are saved in your own browser only. On-screen colours are approxi
        {"A": "01", "B": "08", "C": "08", "D": "26"}
      ],
      "groups": [
-       {"type": "plain", "label": "Colours"}
+       {"type": "plain", "label": "Colours", "labels": {"ru": "Цвета"}}
      ],
      "colours": [
        {"number": "01", "name": "Ivory", "hex": "#efeadb", "type": "plain"},
@@ -46,7 +46,7 @@ Colour choices are saved in your own browser only. On-screen colours are approxi
    | `url` | no | Link to the yarn's shop page, shown as "View … ↗" next to the dropdown. |
    | `ballWeightGrams` | yes | Weight of one ball, used to round up to whole balls. |
    | `presets` | no | Starting colours for new pairs, given as colour numbers for A, B, C and D. Pair 1 uses the first preset, pair 2 the second, and so on. If there are none, a spread of the yarn's colours is used. |
-   | `groups` | yes | Headings in the colour picker. Each colour's `type` must match one group's `type`. |
+   | `groups` | yes | Headings in the colour picker. Each colour's `type` must match one group's `type`. `label` is the English heading; `labels` can add other languages, e.g. `{"ru": "Цвета"}`. Yarn and colour names are never translated. |
    | `colours` | yes | Every colour: its shop `number`, `name`, an on-screen `hex` colour and its group `type`. Colours appear in the order listed, so order them roughly by hue. |
 
 2. Add the file name to `yarns/index.json`:

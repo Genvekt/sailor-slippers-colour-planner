@@ -10,7 +10,7 @@
     {"A":"04","B":"20","C":"20","D":"26"}
   ],
   "groups": [
-    {"type":"plain","label":"Colours"}
+    {"type":"plain","label":"Colours","labels":{"ru":"Цвета"}}
   ],
   "colours": [
     {"number":"01","name":"Ivory","hex":"#efeadb","type":"plain"},

@@ -10,8 +10,8 @@
     {"A":"110","B":"07","C":"07","D":"46"}
   ],
   "groups": [
-    {"type":"plain","label":"Plain colours"},
-    {"type":"mix","label":"Heathered mix"}
+    {"type":"plain","label":"Plain colours","labels":{"ru":"Однотонные"}},
+    {"type":"mix","label":"Heathered mix","labels":{"ru":"Меланж"}}
   ],
   "colours": [
     {"number":"01","name":"natur","hex":"#f2efe6","type":"plain"},
